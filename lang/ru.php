@@ -196,7 +196,6 @@ return [
 'error_trip_stage_duration_required' => 'Укажите продолжительность этапа',
 'error_trip_create_failed' => 'Ошибка при создании похода',
 'error_trip_not_found' => 'Поход не найден',
-'error_trip_not_yours' => 'Это не ваш поход',
 
 // Успехи
 'success_trip_created' => 'Поход создан! Проверьте почту для активации.',
@@ -271,7 +270,6 @@ return [
 'success_trip_activated' => 'Поход активирован! Первый этап запущен.',
 'success_trip_cancelled' => 'Поход отменён',
 
-'stage_status_pending' => 'Ожидает активации',
 'error_trip_no_stages' => 'В походе нет этапов',
 
 'trip_activate_confirm' => 'Убедитесь, что указали дату начала и все этапы заполнены. Активировать поход?',

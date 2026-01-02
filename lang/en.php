@@ -196,7 +196,6 @@ return [
 'error_trip_stage_duration_required' => 'Enter stage duration',
 'error_trip_create_failed' => 'Failed to create trip',
 'error_trip_not_found' => 'Trip not found',
-'error_trip_not_yours' => 'This is not your trip',
 
 // Success
 'success_trip_created' => 'Trip created! Check your email for activation.',
@@ -271,7 +270,6 @@ return [
 'success_trip_activated' => 'Trip activated! First stage started.',
 'success_trip_cancelled' => 'Trip cancelled',
 
-'stage_status_pending' => 'Awaiting Activation',
 'error_trip_no_stages' => 'Trip has no stages',
 
 'trip_activate_confirm' => 'Make sure you have set the start date and filled all stages. Activate trip?',
