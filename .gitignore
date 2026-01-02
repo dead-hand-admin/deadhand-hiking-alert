@@ -1,0 +1,28 @@
+# Конфиденциальные файлы
+.env
+config.php
+
+# Загруженные файлы
+uploads/*
+!uploads/.gitkeep
+
+# Логи
+logs/*
+!logs/.gitkeep
+
+# Временные файлы
+*.log
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Миграции - применённые вручную
+migrations/*.applied
