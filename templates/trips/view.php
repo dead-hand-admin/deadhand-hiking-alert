@@ -25,6 +25,10 @@
         
         <div class="mt-4 flex gap-2">
             <?php if ($trip['status'] === 'draft'): ?>
+                <a href="/trip/edit?id=<?= $trip['id'] ?>" 
+                   class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    <?= t('trip_edit') ?>
+                </a>
                 <a href="/trip/confirm?id=<?= $trip['id'] ?>" 
                    onclick="return confirm('<?= t('trip_activate_confirm') ?>')"
                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">

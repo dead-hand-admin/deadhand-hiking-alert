@@ -50,14 +50,18 @@ $routes = [
     
     '/trips' => ['Controllers\TripController', 'index'],
     '/trip/create' => ['Controllers\TripController', 'create'],
+    '/trip/edit' => ['Controllers\TripController', 'edit'],
+    '/trip/update' => ['Controllers\TripController', 'update'],
     '/trip/view' => ['Controllers\TripController', 'view'],
     '/trip/confirm' => ['Controllers\TripController', 'confirm'],
     '/trip/cancel' => ['Controllers\TripController', 'cancel'],
     '/trip/copy' => ['Controllers\TripController', 'copy'],
     '/trip/delete' => ['Controllers\TripController', 'delete'],
+    '/trip/file/delete' => ['Controllers\TripController', 'deleteFile'],
     
     '/stage/confirm' => ['Controllers\TripController', 'confirmStage'],
-    '/stage/extend' => ['Controllers\TripController', 'extendStage'],
+    
+    '/action' => ['Controllers\ActionController', 'handle'],
 ];
 
 // Роутинг

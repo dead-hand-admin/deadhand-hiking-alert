@@ -7,6 +7,13 @@ return [
     // Common
     'app_name' => 'DeadHand',
     'app_tagline' => 'Tourist Safety System',
+    'hours' => 'hours',
+    'days' => 'days',
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'delete' => 'Delete',
+    'trip_save' => 'Save',
+    'file_delete_confirm' => 'Delete file?',
     
     // Navigation
     'nav_home' => 'Home',
@@ -171,12 +178,8 @@ return [
 'trip_stages_description' => 'Break your trip into checkpoints. At each point you will need to confirm that everything is OK.',
 
 'trip_stage_number' => 'Stage',
-'trip_stage_description' => 'Description',
+'trip_stage_description' => 'Name',
 'trip_stage_description_placeholder' => 'Ascent to base camp',
-'trip_stage_location' => 'Location',
-'trip_stage_location_placeholder' => 'Talgar Pass, 3200m',
-'trip_stage_duration_days' => 'Days',
-'trip_stage_duration_hours' => 'Hours',
 'trip_stage_deadline_time' => 'By time',
 'trip_stage_emergency_service' => 'Emergency Service',
 'trip_stage_add' => 'Add Stage',
@@ -192,10 +195,13 @@ return [
 // Errors
 'error_trip_country_required' => 'Select country',
 'error_trip_stages_required' => 'Add at least one stage',
-'error_trip_stage_description_required' => 'Enter stage description',
+'error_trip_stage_description_required' => 'Enter stage name',
 'error_trip_stage_duration_required' => 'Enter stage duration',
 'error_trip_create_failed' => 'Failed to create trip',
 'error_trip_not_found' => 'Trip not found',
+'error_trip_not_active' => 'Trip is not active',
+'error_no_active_stage' => 'No active stage',
+'error' => 'Error',
 
 // Success
 'success_trip_created' => 'Trip created! Check your email for activation.',
@@ -261,23 +267,56 @@ return [
 
 'stage_requires_confirmation' => 'Requires Confirmation',
 'trip_edit' => 'Edit',
+'trip_edit_title' => 'Edit Trip',
 
 'error_trip_not_draft' => 'Trip is already activated or completed',
 'error_trip_not_active' => 'Trip is not active',
+'error_trip_cannot_edit' => 'Only drafts can be edited',
 'error_trip_activation_failed' => 'Failed to activate trip',
 'error_trip_cancel_failed' => 'Failed to cancel trip',
+'error_trip_update_failed' => 'Failed to update trip',
+'error_file_not_found' => 'File not found',
+'error_file_delete_failed' => 'Failed to delete file',
 
 'success_trip_activated' => 'Trip activated! First stage started.',
 'success_trip_cancelled' => 'Trip cancelled',
+'success_trip_updated' => 'Trip updated',
+'success_file_deleted' => 'File deleted',
 
 'error_trip_no_stages' => 'Trip has no stages',
 
-'trip_activate_confirm' => 'Make sure you have set the start date and filled all stages. Activate trip?',
+'trip_activate_confirm' => 'Make sure all stages are filled. Activate trip? Start date will be set to today.',
 
 'trip_delete' => 'Delete',
 'trip_delete_confirm' => 'Delete trip draft? This action cannot be undone.',
 'error_trip_cannot_delete' => 'Only drafts can be deleted',
 'error_trip_delete_failed' => 'Failed to delete trip',
 'success_trip_deleted' => 'Trip deleted',
+
+// Action tokens (short links from emails)
+'action_confirm_stage_title' => 'Confirm Stage Completion',
+'action_confirm_stage_text' => 'Do you really want to confirm completion of stage "{stage}" and proceed to the next stage?',
+'action_confirm_stage_last_text' => 'Do you really want to confirm completion of the last stage "{stage}" and complete the trip?',
+'action_confirm_stage_button' => 'Yes, confirm',
+'action_cancel_trip_title' => 'Cancel Trip',
+'action_cancel_trip_text' => 'Do you really want to cancel trip "{trip}"? All scheduled alerts will be cancelled.',
+'action_cancel_trip_button' => 'Yes, cancel trip',
+'action_complete_trip_title' => 'Complete Trip',
+'action_complete_trip_text' => 'Do you really want to complete trip "{trip}"? All scheduled alerts will be cancelled.',
+'action_complete_trip_button' => 'Yes, complete trip',
+'action_extend_stage_title' => 'Extend Stage Deadline',
+'action_extend_stage_text' => 'Choose how to extend deadline for stage "{stage}":',
+'action_extend_hours' => 'Add hours',
+'action_extend_to_date' => 'Move to date',
+'action_extend_date' => 'Date',
+'action_extend_time' => 'Until time',
+'action_extend_button' => 'Extend',
+'action_back_to_trips' => 'Back to trips',
+
+'action_token_invalid' => 'Invalid or expired link',
+'action_success' => 'Action completed successfully',
+
+'error_extend_hours_required' => 'Specify number of hours',
+'error_extend_date_required' => 'Specify date and time',
 
 ];

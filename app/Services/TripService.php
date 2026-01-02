@@ -131,6 +131,9 @@ class TripService {
             if ($nextStage) {
                 // Активируем следующий этап
                 self::activateStage($nextStage['id'], $userTimezone);
+                
+                // TODO: Отправить письмо о переходе к следующему этапу
+                // Токены уже существуют и работают с любым активным этапом
             } else {
                 // Это был последний этап — завершаем поход
                 $stmt = db()->prepare('

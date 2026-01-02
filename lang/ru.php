@@ -7,6 +7,13 @@ return [
     // Общее
     'app_name' => 'DeadHand',
     'app_tagline' => 'Система безопасности для туристов',
+    'hours' => 'часов',
+    'days' => 'дней',
+    'save' => 'Сохранить',
+    'cancel' => 'Отмена',
+    'delete' => 'Удалить',
+    'trip_save' => 'Сохранить',
+    'file_delete_confirm' => 'Удалить файл?',
     
     // Навигация
     'nav_home' => 'Главная',
@@ -171,12 +178,8 @@ return [
 'trip_stages_description' => 'Разбейте поход на контрольные точки. В каждой точке вам нужно будет подтвердить, что всё в порядке.',
 
 'trip_stage_number' => 'Этап',
-'trip_stage_description' => 'Описание',
+'trip_stage_description' => 'Название',
 'trip_stage_description_placeholder' => 'Подъём к базовому лагерю',
-'trip_stage_location' => 'Локация',
-'trip_stage_location_placeholder' => 'Перевал Талгар, 3200м',
-'trip_stage_duration_days' => 'Дней',
-'trip_stage_duration_hours' => 'Часов',
 'trip_stage_deadline_time' => 'До времени',
 'trip_stage_emergency_service' => 'Служба ЧС',
 'trip_stage_add' => 'Добавить этап',
@@ -192,10 +195,13 @@ return [
 // Ошибки
 'error_trip_country_required' => 'Выберите страну',
 'error_trip_stages_required' => 'Добавьте хотя бы один этап',
-'error_trip_stage_description_required' => 'Укажите описание этапа',
+'error_trip_stage_description_required' => 'Укажите название этапа',
 'error_trip_stage_duration_required' => 'Укажите продолжительность этапа',
 'error_trip_create_failed' => 'Ошибка при создании похода',
 'error_trip_not_found' => 'Поход не найден',
+'error_trip_not_active' => 'Поход не активен',
+'error_no_active_stage' => 'Нет активного этапа',
+'error' => 'Ошибка',
 
 // Успехи
 'success_trip_created' => 'Поход создан! Проверьте почту для активации.',
@@ -261,23 +267,56 @@ return [
 
 'stage_requires_confirmation' => 'Требует подтверждения',
 'trip_edit' => 'Редактировать',
+'trip_edit_title' => 'Редактирование похода',
 
 'error_trip_not_draft' => 'Поход уже активирован или завершён',
 'error_trip_not_active' => 'Поход не активен',
+'error_trip_cannot_edit' => 'Можно редактировать только черновики',
 'error_trip_activation_failed' => 'Ошибка при активации похода',
 'error_trip_cancel_failed' => 'Ошибка при отмене похода',
+'error_trip_update_failed' => 'Ошибка при обновлении похода',
+'error_file_not_found' => 'Файл не найден',
+'error_file_delete_failed' => 'Ошибка при удалении файла',
 
 'success_trip_activated' => 'Поход активирован! Первый этап запущен.',
 'success_trip_cancelled' => 'Поход отменён',
+'success_trip_updated' => 'Поход обновлён',
+'success_file_deleted' => 'Файл удалён',
 
 'error_trip_no_stages' => 'В походе нет этапов',
 
-'trip_activate_confirm' => 'Убедитесь, что указали дату начала и все этапы заполнены. Активировать поход?',
+'trip_activate_confirm' => 'Убедитесь, что все этапы заполнены. Активировать поход? Дата начала будет установлена на сегодня.',
 
 'trip_delete' => 'Удалить',
 'trip_delete_confirm' => 'Удалить черновик похода? Это действие нельзя отменить.',
 'error_trip_cannot_delete' => 'Можно удалять только черновики',
 'error_trip_delete_failed' => 'Ошибка при удалении похода',
 'success_trip_deleted' => 'Поход удалён',
+
+// Действия по токенам (короткие ссылки из писем)
+'action_confirm_stage_title' => 'Подтверждение прохождения этапа',
+'action_confirm_stage_text' => 'Вы действительно хотите подтвердить завершение этапа "{stage}" и перейти к следующему этапу?',
+'action_confirm_stage_last_text' => 'Вы действительно хотите подтвердить завершение последнего этапа "{stage}" и завершить поход?',
+'action_confirm_stage_button' => 'Да, подтвердить',
+'action_cancel_trip_title' => 'Отмена похода',
+'action_cancel_trip_text' => 'Вы действительно хотите отменить поход "{trip}"? Все запланированные оповещения будут отменены.',
+'action_cancel_trip_button' => 'Да, отменить поход',
+'action_complete_trip_title' => 'Завершение похода',
+'action_complete_trip_text' => 'Вы действительно хотите завершить поход "{trip}"? Все запланированные оповещения будут отменены.',
+'action_complete_trip_button' => 'Да, завершить поход',
+'action_extend_stage_title' => 'Продление срока этапа',
+'action_extend_stage_text' => 'Выберите способ продления срока для этапа "{stage}":',
+'action_extend_hours' => 'Добавить часов',
+'action_extend_to_date' => 'Перенести на дату',
+'action_extend_date' => 'Дата',
+'action_extend_time' => 'До времени',
+'action_extend_button' => 'Продлить',
+'action_back_to_trips' => 'Вернуться к походам',
+
+'action_token_invalid' => 'Неверная или просроченная ссылка',
+'action_success' => 'Действие выполнено успешно',
+
+'error_extend_hours_required' => 'Укажите количество часов',
+'error_extend_date_required' => 'Укажите дату и время',
 
 ];

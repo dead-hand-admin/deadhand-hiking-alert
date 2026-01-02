@@ -87,14 +87,9 @@ class TripController extends BaseController {
         }
         
         $userId = $_SESSION['user_id'];
-        $user = $this->currentUser();
-        
-        $action = $this->post('action', 'create');
-        $isDraft = ($action === 'draft');
         
         // Получаем данные
         $name = trim($this->post('name', ''));
-        $startDate = !empty($this->post('start_date')) ? $this->post('start_date') : null;
         $countryCode = $this->post('country_code', '');
         $emergencyServiceId = !empty($this->post('emergency_service_id')) ? (int)$this->post('emergency_service_id') : null;
         $stages = $this->post('stages', []);
@@ -102,16 +97,6 @@ class TripController extends BaseController {
         // Валидация
         if (empty($name)) {
             setFlash('error', t('error_trip_name_required'));
-            redirect('/trip/create');
-        }
-        
-        if (!$isDraft && empty($startDate)) {
-            setFlash('error', t('error_trip_start_date_required'));
-            redirect('/trip/create');
-        }
-        
-        if (!empty($startDate) && strtotime($startDate) < strtotime('today')) {
-            setFlash('error', t('error_trip_start_date_past'));
             redirect('/trip/create');
         }
         
@@ -125,23 +110,15 @@ class TripController extends BaseController {
             redirect('/trip/create');
         }
         
-        // Проверка активных походов
-        if (!$isDraft) {
-            if ($this->tripModel->countActiveTrips($userId) > 0) {
-                setFlash('error', t('error_trip_already_active'));
-                redirect('/trip/create');
-            }
-        }
-        
         try {
             db()->beginTransaction();
             
-            // Создаём поход
+            // Создаём поход (всегда как черновик, start_date будет установлена при активации)
             $tripId = $this->tripModel->createTrip($userId, [
                 'name' => $name,
                 'country_code' => $countryCode,
                 'emergency_service_id' => $emergencyServiceId,
-                'start_date' => $startDate
+                'start_date' => null
             ]);
             
             // Создаём этапы
@@ -176,21 +153,12 @@ class TripController extends BaseController {
             }
             
             // Обработка файлов
-            if (!$isDraft) {
-                $this->handleTripFiles($tripId);
-            }
+            $this->handleTripFiles($tripId);
             
             db()->commit();
             
-            logMessage("Trip created: trip_id=$tripId, user_id=$userId, is_draft=" . ($isDraft ? 'true' : 'false'));
-            
-            if ($isDraft) {
-                setFlash('success', t('success_trip_draft_saved'));
-            } else {
-                // TODO: Отправить письмо с подтверждением
-                setFlash('success', t('success_trip_created'));
-            }
-            
+            logMessage("Trip created: trip_id=$tripId, user_id=$userId");
+            setFlash('success', t('success_trip_draft_saved'));
             redirectWithParams('/trip/view', ['id' => $tripId]);
             
         } catch (\Exception $e) {
@@ -198,6 +166,168 @@ class TripController extends BaseController {
             logMessage("Trip creation error: " . $e->getMessage());
             setFlash('error', t('error_trip_create_failed') . ': ' . $e->getMessage());
             redirect('/trip/create');
+        }
+    }
+    
+    /**
+     * Редактирование похода (только черновики)
+     */
+    public function edit() {
+        $this->requireAuth();
+        
+        $userId = $_SESSION['user_id'];
+        $tripId = $this->get('id', 0);
+        
+        if (!$this->tripModel->belongsToUser($tripId, $userId)) {
+            setFlash('error', t('error_trip_not_found'));
+            redirect('/trips');
+        }
+        
+        $trip = $this->tripModel->find($tripId);
+        
+        if ($trip['status'] !== 'draft') {
+            setFlash('error', t('error_trip_cannot_edit'));
+            redirect('/trips');
+        }
+        
+        // Получаем этапы
+        $stages = $this->stageModel->findByTripId($tripId);
+        
+        // Получаем данные для формы
+        $user = $this->currentUser();
+        
+        $stmt = db()->query('SELECT * FROM countries ORDER BY name_' . getCurrentLang());
+        $countries = $stmt->fetchAll();
+        
+        $stmt = db()->query('
+            SELECT id, country_code, name_' . getCurrentLang() . ' as name, is_default, is_enabled
+            FROM emergency_services 
+            WHERE is_enabled = TRUE
+            ORDER BY country_code, is_default DESC, name_' . getCurrentLang());
+        $allServices = $stmt->fetchAll();
+        
+        // Получаем файлы
+        $stmt = db()->prepare('SELECT * FROM trip_files WHERE trip_id = ?');
+        $stmt->execute([$tripId]);
+        $files = $stmt->fetchAll();
+        
+        $this->render('trips/edit', [
+            'title' => t('trip_edit_title'),
+            'user' => $user,
+            'trip' => $trip,
+            'stages' => $stages,
+            'countries' => $countries,
+            'allServices' => $allServices,
+            'files' => $files
+        ]);
+    }
+    
+    /**
+     * Обновление похода
+     */
+    public function update() {
+        $this->requireAuth();
+        
+        if (!$this->verifyCsrf()) {
+            redirect('/trips');
+        }
+        
+        $userId = $_SESSION['user_id'];
+        $tripId = $this->post('trip_id', 0);
+        
+        if (!$this->tripModel->belongsToUser($tripId, $userId)) {
+            setFlash('error', t('error_trip_not_found'));
+            redirect('/trips');
+        }
+        
+        $trip = $this->tripModel->find($tripId);
+        
+        if ($trip['status'] !== 'draft') {
+            setFlash('error', t('error_trip_cannot_edit'));
+            redirect('/trips');
+        }
+        
+        // Получаем данные
+        $name = trim($this->post('name', ''));
+        $countryCode = $this->post('country_code', '');
+        $emergencyServiceId = !empty($this->post('emergency_service_id')) ? (int)$this->post('emergency_service_id') : null;
+        $stages = $this->post('stages', []);
+        
+        // Валидация
+        if (empty($name)) {
+            setFlash('error', t('error_trip_name_required'));
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
+        }
+        
+        if (empty($countryCode)) {
+            setFlash('error', t('error_trip_country_required'));
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
+        }
+        
+        if (empty($stages)) {
+            setFlash('error', t('error_trip_stages_required'));
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
+        }
+        
+        try {
+            db()->beginTransaction();
+            
+            // Обновляем поход
+            $this->tripModel->update($tripId, [
+                'name' => $name,
+                'country_code' => $countryCode,
+                'emergency_service_id' => $emergencyServiceId
+            ]);
+            
+            // Удаляем старые этапы
+            $stmt = db()->prepare('DELETE FROM stages WHERE trip_id = ?');
+            $stmt->execute([$tripId]);
+            
+            // Создаём новые этапы
+            $stageNumber = 1;
+            foreach ($stages as $stageData) {
+                $description = trim($stageData['description'] ?? '');
+                $location = trim($stageData['location'] ?? '');
+                $durationDays = (int)($stageData['duration_days'] ?? 0);
+                $deadlineTime = $stageData['deadline_time'] ?? '20:00';
+                $stageEmergencyServiceId = !empty($stageData['emergency_service_id']) ? (int)$stageData['emergency_service_id'] : $emergencyServiceId;
+                $requiresConfirmation = isset($stageData['requires_confirmation']);
+                
+                if (empty($description)) {
+                    throw new \Exception(t('error_trip_stage_description_required'));
+                }
+                
+                if ($durationDays < 0) {
+                    throw new \Exception(t('error_trip_stage_duration_required'));
+                }
+                
+                $this->stageModel->createStage($tripId, [
+                    'stage_number' => $stageNumber,
+                    'description' => $description,
+                    'location' => $location,
+                    'duration_days' => $durationDays,
+                    'deadline_time' => $deadlineTime,
+                    'emergency_service_id' => $stageEmergencyServiceId,
+                    'requires_confirmation' => $requiresConfirmation ? 1 : 0
+                ]);
+                
+                $stageNumber++;
+            }
+            
+            // Обработка файлов
+            $this->handleTripFiles($tripId);
+            
+            db()->commit();
+            
+            logMessage("Trip updated: trip_id=$tripId, user_id=$userId");
+            setFlash('success', t('success_trip_updated'));
+            redirectWithParams('/trip/view', ['id' => $tripId]);
+            
+        } catch (\Exception $e) {
+            db()->rollBack();
+            logMessage("Trip update error: " . $e->getMessage());
+            setFlash('error', t('error_trip_update_failed') . ': ' . $e->getMessage());
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
         }
     }
     
@@ -420,12 +550,6 @@ class TripController extends BaseController {
             redirect('/trips');
         }
     
-        // ВАЖНО: Проверки ДО начала транзакции
-        if (empty($trip['start_date'])) {
-            setFlash('error', t('error_trip_start_date_required'));
-            redirectWithParams('/trip/view', ['id' => $tripId]);
-        }
-    
         // Проверка активных походов
         if ($this->tripModel->countActiveTrips($userId) > 0) {
             setFlash('error', t('error_trip_already_active'));
@@ -442,19 +566,29 @@ class TripController extends BaseController {
         try {
             db()->beginTransaction();
         
-            // Активируем поход
+            // Устанавливаем текущую дату как дату начала и активируем поход
             $this->tripModel->update($tripId, [
                 'status' => 'active',
-                'confirmed' => true
+                'confirmed' => true,
+                'start_date' => date('Y-m-d')
             ]);
         
             // Активируем первый этап
             $user = $this->currentUser();
             TripService::activateStage($stages[0]['id'], $user['timezone']);
         
+            // Генерируем токены для действий без авторизации
+            $tokenModel = new \Models\ActionToken();
+            $tokens = $tokenModel->generateTripTokens($tripId);
+        
             db()->commit();
         
             // TODO: Отправить письма контактам и в МЧС о начале похода
+            // Включить в письмо короткие ссылки:
+            // - Подтвердить активный этап: /action?t={$tokens['confirm_stage']}
+            // - Продлить активный этап: /action?t={$tokens['extend_stage']}
+            // - Отменить поход: /action?t={$tokens['cancel_trip']}
+            // - Завершить поход: /action?t={$tokens['complete_trip']}
         
             logMessage("Trip activated: trip_id=$tripId, user_id=$userId");
             setFlash('success', t('success_trip_activated'));
@@ -563,6 +697,61 @@ class TripController extends BaseController {
             logMessage("Trip deletion error: " . $e->getMessage());
             setFlash('error', t('error_trip_delete_failed'));
             redirect('/trips');
+        }
+    }
+    
+    /**
+     * Удаление файла похода
+     */
+    public function deleteFile() {
+        $this->requireAuth();
+        
+        $userId = $_SESSION['user_id'];
+        $fileId = $this->get('id', 0);
+        $tripId = $this->get('trip_id', 0);
+        
+        // Получаем файл
+        $stmt = db()->prepare('
+            SELECT tf.*, t.user_id 
+            FROM trip_files tf
+            JOIN trips t ON t.id = tf.trip_id
+            WHERE tf.id = ?
+        ');
+        $stmt->execute([$fileId]);
+        $file = $stmt->fetch();
+        
+        if (!$file || $file['user_id'] != $userId) {
+            setFlash('error', t('error_file_not_found'));
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
+        }
+        
+        // Получаем поход
+        $trip = $this->tripModel->find($tripId);
+        
+        if ($trip['status'] !== 'draft') {
+            setFlash('error', t('error_trip_cannot_edit'));
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
+        }
+        
+        try {
+            // Удаляем файл с диска
+            $filePath = ROOT_PATH . '/' . $file['file_path'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            
+            // Удаляем запись из БД
+            $stmt = db()->prepare('DELETE FROM trip_files WHERE id = ?');
+            $stmt->execute([$fileId]);
+            
+            logMessage("File deleted: file_id=$fileId, trip_id=$tripId, user_id=$userId");
+            setFlash('success', t('success_file_deleted'));
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
+            
+        } catch (\Exception $e) {
+            logMessage("File deletion error: " . $e->getMessage());
+            setFlash('error', t('error_file_delete_failed'));
+            redirectWithParams('/trip/edit', ['id' => $tripId]);
         }
     }
 }
